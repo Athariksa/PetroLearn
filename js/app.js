@@ -30,73 +30,51 @@ const SECTION_REFRESH = {
   jobs: renderJobLinks,
 };
 
-function applyNavHiddenState(hidden) {
-  const nav = document.getElementById("main-nav");
-  const hideBtn = document.getElementById("nav-hide-toggle");
-  const showBtn = document.getElementById("nav-show-toggle");
-  if (!nav || !hideBtn || !showBtn) return;
-
-  // Hiding the nav also hides the rest of the header controls (search,
-  // sound, music, theme) -- only the brand and the floating "show" button
-  // stay visible, so the whole top bar gets out of the way at once.
-  const otherControls = [
-    document.querySelector(".search-wrap"),
-    document.getElementById("sound-toggle"),
-    document.getElementById("music-toggle"),
-    document.getElementById("theme-toggle"),
-  ];
-
-  nav.classList.toggle("nav-hidden", hidden);
-  hideBtn.style.display = hidden ? "none" : "";
-  showBtn.style.display = hidden ? "" : "none";
-  hideBtn.setAttribute("aria-pressed", String(hidden));
-  otherControls.forEach((el) => {
-    if (el) el.style.display = hidden ? "none" : "";
-  });
-}
-
-function initNavCollapse() {
-  const hideBtn = document.getElementById("nav-hide-toggle");
-  const showBtn = document.getElementById("nav-show-toggle");
-  if (!hideBtn || !showBtn) return;
-
-  applyNavHiddenState(Boolean(loadProgress().navHidden));
-
-  hideBtn.addEventListener("click", () => {
-    setNavHidden(true);
-    applyNavHiddenState(true);
-  });
-  showBtn.addEventListener("click", () => {
-    setNavHidden(false);
-    applyNavHiddenState(false);
-  });
-}
-
-// Auto-hides the whole top bar when scrolling down (more reading room),
-// and brings it back when scrolling up or near the top of the page --
-// independent of the manual "Sembunyikan Menu" toggle above.
+// Eases the nav menu, search box, and dark-mode button out as the page
+// scrolls down (more reading room) -- the brand name and the music toggle
+// always stay visible. Instead of an on/off snap, opacity and a small
+// upward slide are set proportionally to scroll position over FADE_RANGE
+// pixels, so the panel visually tracks the user's scroll; it's back at
+// full strength only once scrolled within TOP_THRESHOLD of the very top.
 function initAutoHideHeaderOnScroll() {
-  const header = document.querySelector(".topbar");
-  if (!header) return;
+  const collapsible = document.getElementById("topbar-collapsible");
+  if (!collapsible) return;
 
-  const REVEAL_THRESHOLD = 80; // always show header above this scroll position
-  const MOVE_THRESHOLD = 10; // ignore tiny scroll jitters
-  let lastScrollY = window.scrollY;
+  const TOP_THRESHOLD = 4;
+  const FADE_RANGE = 70; // px of scrolling over which it fully collapses
   let ticking = false;
+  let naturalHeight = 0;
+
+  // max-height needs a real px value (not "none") for the collapse
+  // animation to run, so measure the wrapper's true height whenever the
+  // window resizes and the nav might wrap differently.
+  function measure() {
+    const prevMax = collapsible.style.maxHeight;
+    collapsible.style.maxHeight = "none";
+    naturalHeight = collapsible.scrollHeight;
+    collapsible.style.maxHeight = prevMax;
+  }
 
   function onScroll() {
-    const currentScrollY = window.scrollY;
-
-    if (currentScrollY <= REVEAL_THRESHOLD) {
-      header.classList.remove("topbar-auto-hidden");
-    } else if (Math.abs(currentScrollY - lastScrollY) >= MOVE_THRESHOLD) {
-      header.classList.toggle("topbar-auto-hidden", currentScrollY > lastScrollY);
-    }
-
-    lastScrollY = currentScrollY;
+    const y = window.scrollY;
+    const progress = y <= TOP_THRESHOLD ? 0 : Math.min(1, (y - TOP_THRESHOLD) / FADE_RANGE);
+    collapsible.style.opacity = String(1 - progress);
+    collapsible.style.transform = `translateY(${-10 * progress}px)`;
+    collapsible.style.maxHeight = `${(1 - progress) * naturalHeight}px`;
+    // Shrinks the gap above this panel too, so once fully collapsed the
+    // header is just symmetric padding above and below the logo row,
+    // instead of leaving a leftover gap that only existed on one side.
+    collapsible.style.marginTop = `${(1 - progress) * 8}px`;
+    // overflow stays visible at the very top so the global search results
+    // dropdown (absolutely positioned inside this wrapper) isn't clipped
+    // while idle; once any collapsing starts, hide overflow so the nav
+    // actually tucks away instead of spilling out of the shrinking box.
+    collapsible.style.overflow = progress > 0 ? "hidden" : "visible";
+    collapsible.classList.toggle("topbar-collapsed", progress > 0.85);
     ticking = false;
   }
 
+  window.addEventListener("resize", measure, { passive: true });
   window.addEventListener(
     "scroll",
     () => {
@@ -107,6 +85,8 @@ function initAutoHideHeaderOnScroll() {
     },
     { passive: true }
   );
+  measure();
+  onScroll();
 }
 
 function initNavigation() {
@@ -675,7 +655,6 @@ function renderProgressTracker() {
 
 document.addEventListener("DOMContentLoaded", () => {
   initNavigation();
-  initNavCollapse();
   initAutoHideHeaderOnScroll();
   initThemeToggle();
   initGlobalSearch();

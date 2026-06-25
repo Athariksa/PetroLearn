@@ -27,9 +27,7 @@ function defaultProgress() {
     interviewAnswered: [],
     hseChecklist: [], // indices into HSE_CHECKLIST_DATA
     careerRolesViewed: [], // role ids from CAREER_ROLES_DATA
-    clickSoundEnabled: false,
     ambientMusicEnabled: false,
-    navHidden: false,
   };
 }
 
@@ -129,20 +127,8 @@ function markCareerRoleViewed(roleId) {
   return progress;
 }
 
-function setClickSoundEnabled(enabled) {
-  const progress = loadProgress();
-  progress.clickSoundEnabled = enabled;
-  saveProgress(progress);
-}
-
 function setAmbientMusicEnabled(enabled) {
   const progress = loadProgress();
   progress.ambientMusicEnabled = enabled;
-  saveProgress(progress);
-}
-
-function setNavHidden(hidden) {
-  const progress = loadProgress();
-  progress.navHidden = hidden;
   saveProgress(progress);
 }

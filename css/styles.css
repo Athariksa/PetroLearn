@@ -63,21 +63,45 @@ h1, h2, h3, h4, h5, .brand, .section-title, .subsection-title {
 /* ---------- Top bar / navigation ---------- */
 .topbar {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
   padding: 0.75rem 1.25rem;
   background: var(--color-navy);
   color: #fff;
   position: sticky;
   top: 0;
   z-index: 50;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  transition: transform 0.25s ease;
 }
 
-.topbar.topbar-auto-hidden {
-  transform: translateY(-100%);
+/* Always-visible top row: brand on the left, music toggle pinned to the
+   far right via margin-left: auto -- this row never wraps, so the music
+   button stays at the top instead of dropping below the nav. */
+.topbar-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+#music-toggle {
+  margin-left: auto;
+}
+
+/* Wraps the nav menu, search box, and dark-mode button. Its
+   opacity/transform are set inline from JS in lockstep with scroll
+   position (see initAutoHideHeaderOnScroll in app.js), so it eases in
+   and out smoothly while following the scroll instead of snapping. */
+.topbar-collapsible {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  width: 100%;
+  margin-top: 0.5rem;
+  transition: opacity 0.2s ease, transform 0.2s ease, max-height 0.2s ease, margin-top 0.2s ease;
+  will-change: opacity, transform, max-height, margin-top;
+}
+
+.topbar-collapsible.topbar-collapsed {
+  pointer-events: none;
 }
 
 .brand {
@@ -100,30 +124,6 @@ h1, h2, h3, h4, h5, .brand, .section-title, .subsection-title {
   display: flex;
   flex-wrap: wrap;
   gap: 0.25rem;
-  overflow: hidden;
-  max-height: 1000px;
-  transition: max-height 0.2s ease, opacity 0.2s ease;
-}
-
-.main-nav.nav-hidden {
-  max-height: 0;
-  opacity: 0;
-  margin: 0;
-  pointer-events: none;
-}
-
-.nav-show-fab {
-  position: fixed;
-  bottom: 1.25rem;
-  right: 1.25rem;
-  z-index: 80;
-  background: var(--color-navy);
-  color: #fff;
-  border: 1px solid var(--color-teal-bright);
-  border-radius: var(--radius);
-  padding: 0.6rem 1rem;
-  cursor: pointer;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
 }
 
 .nav-link {

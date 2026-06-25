@@ -12,46 +12,46 @@
 
   <!-- ===================== Top navigation ===================== -->
   <header class="topbar">
-    <div class="brand">
-      <svg class="brand-mark" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M4 21V8a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v13" />
-        <path d="M4 11h10" />
-        <path d="M16 8l3-3 2 2-2.5 2.5a1.5 1.5 0 0 0 0 2.1l1 1a1.5 1.5 0 0 1 0 2.1L18 14v4a2 2 0 0 1-4 0" />
-      </svg>
-      PetroLearn AI
+    <div class="topbar-row">
+      <div class="brand">
+        <svg class="brand-mark" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 21V8a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v13" />
+          <path d="M4 11h10" />
+          <path d="M16 8l3-3 2 2-2.5 2.5a1.5 1.5 0 0 0 0 2.1l1 1a1.5 1.5 0 0 1 0 2.1L18 14v4a2 2 0 0 1-4 0" />
+        </svg>
+        PetroLearn AI
+      </div>
+      <button class="theme-toggle" id="music-toggle" title="Toggle calming alpha-wave background music" aria-pressed="false">🎵</button>
     </div>
-    <button class="theme-toggle" id="nav-hide-toggle" title="Sembunyikan menu navigasi" aria-pressed="false">☰ Sembunyikan Menu</button>
-    <nav class="main-nav" aria-label="Primary" id="main-nav">
-      <button class="nav-link" data-section="home">Home</button>
-      <button class="nav-link" data-section="roadmap">Roadmap</button>
-      <button class="nav-link" data-section="studypath">Study Path</button>
-      <button class="nav-link" data-section="modules">Modules</button>
-      <button class="nav-link" data-section="hse">HSE</button>
-      <button class="nav-link" data-section="career">Career Prep</button>
-      <button class="nav-link" data-section="interview">Interview Bank</button>
-      <button class="nav-link" data-section="glossary">Glossary</button>
-      <button class="nav-link" data-section="formulas">Formulas</button>
-      <button class="nav-link" data-section="unitconverter">Unit Converter</button>
-      <button class="nav-link" data-section="quiz">Quiz</button>
-      <button class="nav-link" data-section="flashcards">Flashcards</button>
-      <button class="nav-link" data-section="datalab">Data Lab</button>
-      <button class="nav-link" data-section="softwarelab">Software Lab</button>
-      <button class="nav-link" data-section="research">Research</button>
-      <button class="nav-link" data-section="sources">Sources</button>
-      <button class="nav-link" data-section="news">News</button>
-      <button class="nav-link" data-section="jobs">Job Board</button>
-      <button class="nav-link" data-section="progress">Progress</button>
-    </nav>
-    <div class="search-wrap">
-      <input type="text" id="global-search" placeholder="Search everything..." autocomplete="off" />
-      <div id="search-results-dropdown" class="search-results-dropdown"></div>
+    <div class="topbar-collapsible" id="topbar-collapsible">
+      <nav class="main-nav" aria-label="Primary" id="main-nav">
+        <button class="nav-link" data-section="home">Home</button>
+        <button class="nav-link" data-section="roadmap">Roadmap</button>
+        <button class="nav-link" data-section="studypath">Study Path</button>
+        <button class="nav-link" data-section="modules">Modules</button>
+        <button class="nav-link" data-section="hse">HSE</button>
+        <button class="nav-link" data-section="career">Career Prep</button>
+        <button class="nav-link" data-section="interview">Interview Bank</button>
+        <button class="nav-link" data-section="glossary">Glossary</button>
+        <button class="nav-link" data-section="formulas">Formulas</button>
+        <button class="nav-link" data-section="unitconverter">Unit Converter</button>
+        <button class="nav-link" data-section="quiz">Quiz</button>
+        <button class="nav-link" data-section="flashcards">Flashcards</button>
+        <button class="nav-link" data-section="datalab">Data Lab</button>
+        <button class="nav-link" data-section="softwarelab">Software Lab</button>
+        <button class="nav-link" data-section="research">Research</button>
+        <button class="nav-link" data-section="sources">Sources</button>
+        <button class="nav-link" data-section="news">News</button>
+        <button class="nav-link" data-section="jobs">Job Board</button>
+        <button class="nav-link" data-section="progress">Progress</button>
+      </nav>
+      <div class="search-wrap">
+        <input type="text" id="global-search" placeholder="Search everything..." autocomplete="off" />
+        <div id="search-results-dropdown" class="search-results-dropdown"></div>
+      </div>
+      <button class="theme-toggle" id="theme-toggle">Dark mode</button>
     </div>
-    <button class="theme-toggle" id="sound-toggle" title="Toggle click sounds" aria-pressed="false">🔈</button>
-    <button class="theme-toggle" id="music-toggle" title="Toggle calming alpha-wave background music" aria-pressed="false">🎵</button>
-    <button class="theme-toggle" id="theme-toggle">Dark mode</button>
   </header>
-
-  <button class="nav-show-fab" id="nav-show-toggle" title="Tampilkan menu navigasi" style="display:none;">☰ Tampilkan Menu</button>
 
   <main>
 
