@@ -1,13 +1,17 @@
 // audio.js
-// Calming ambient background music, synthesized at runtime with the Web
-// Audio API -- no audio file is bundled, so there's nothing to license
-// and the offline "just open index.html" promise still holds.
+// All sound is synthesized at runtime with the Web Audio API -- no audio
+// files are bundled, so there's nothing to license and the offline
+// "just open index.html" promise still holds.
 //
-// It's an "alpha wave" drone: two detuned low sine oscillators (a ~10 Hz
-// binaural beat, the alpha brainwave range) under a slow breathing volume
-// LFO, kept very quiet so it's meant to sit under study sessions rather
-// than be noticed. Off by default, toggled with the single #music-toggle
-// button, and the on/off choice is persisted via progress.js.
+// Two independent things:
+//   1. A short click blip on buttons/icons/chips -- always on, no toggle,
+//      it just plays.
+//   2. An ambient "alpha wave" background drone: two detuned low sine
+//      oscillators (a ~10 Hz binaural beat, the alpha brainwave range)
+//      under a slow breathing volume LFO, kept very quiet so it's meant
+//      to sit under study sessions rather than be noticed. Off by
+//      default, toggled with the single #music-toggle button, and the
+//      on/off choice is persisted via progress.js.
 
 let audioCtx = null;
 let ambientNodes = null;
@@ -19,6 +23,25 @@ function getAudioContext() {
   }
   if (audioCtx.state === "suspended") audioCtx.resume();
   return audioCtx;
+}
+
+function playClickSound() {
+  const ctx = getAudioContext();
+  const now = ctx.currentTime;
+
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = "sine";
+  osc.frequency.setValueAtTime(720, now);
+  osc.frequency.exponentialRampToValueAtTime(420, now + 0.06);
+
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(0.12, now + 0.008);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.09);
+
+  osc.connect(gain).connect(ctx.destination);
+  osc.start(now);
+  osc.stop(now + 0.1);
 }
 
 function isAmbientMusicEnabled() {
@@ -106,15 +129,25 @@ function updateMusicToggleButton() {
 
 function initAudioControls() {
   const musicBtn = document.getElementById("music-toggle");
-  if (!musicBtn) return;
-
-  updateMusicToggleButton();
-  musicBtn.addEventListener("click", () => {
-    const next = !isAmbientMusicEnabled();
-    setAmbientMusicEnabled(next);
+  if (musicBtn) {
     updateMusicToggleButton();
-    if (next) startAmbientMusic();
-    else stopAmbientMusic();
+    musicBtn.addEventListener("click", () => {
+      const next = !isAmbientMusicEnabled();
+      setAmbientMusicEnabled(next);
+      updateMusicToggleButton();
+      if (next) startAmbientMusic();
+      else stopAmbientMusic();
+    });
+    if (isAmbientMusicEnabled()) startAmbientMusic();
+  }
+
+  // Single delegated listener covers every button, nav link, filter chip,
+  // and icon site-wide without touching each feature's own JS file.
+  // Always on -- there's no toggle for this one.
+  document.addEventListener("click", (e) => {
+    const interactive = e.target.closest(
+      "button, .nav-link, .filter-chip, .quiz-option, .path-card, .category-icon, .search-result-item, [data-role-toggle], [data-audience]"
+    );
+    if (interactive) playClickSound();
   });
-  if (isAmbientMusicEnabled()) startAmbientMusic();
 }
