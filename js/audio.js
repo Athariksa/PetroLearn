@@ -1,167 +1,177 @@
-// Sound effects sederhana memakai Web Audio API (tanpa asset eksternal)
-const SoundFX = (() => {
-  let ctx = null;
-  let muted = false;
+// audio.js
+// All sound is synthesized at runtime with the Web Audio API -- no audio
+// files are bundled, so there's nothing to license and the offline
+// "just open index.html" promise still holds.
+//
+// Two independent features, both off by default and persisted via
+// progress.js:
+//   1. A short synthesized "click" blip on buttons/icons/chips.
+//   2. An ambient "alpha wave" background drone: two detuned low sine
+//      oscillators (a ~10 Hz binaural beat, the alpha brainwave range)
+//      under a slow breathing volume LFO, kept very quiet so it's
+//      meant to sit under study sessions rather than be noticed.
 
-  function getCtx() {
-    if (!ctx) {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      ctx = new AudioCtx();
-    }
-    if (ctx.state === "suspended") ctx.resume();
-    return ctx;
+let audioCtx = null;
+let ambientNodes = null;
+
+function getAudioContext() {
+  if (!audioCtx) {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    audioCtx = new Ctx();
+  }
+  if (audioCtx.state === "suspended") audioCtx.resume();
+  return audioCtx;
+}
+
+function isClickSoundEnabled() {
+  return Boolean(loadProgress().clickSoundEnabled);
+}
+
+function isAmbientMusicEnabled() {
+  return Boolean(loadProgress().ambientMusicEnabled);
+}
+
+function playClickSound() {
+  if (!isClickSoundEnabled()) return;
+  const ctx = getAudioContext();
+  const now = ctx.currentTime;
+
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = "sine";
+  osc.frequency.setValueAtTime(720, now);
+  osc.frequency.exponentialRampToValueAtTime(420, now + 0.06);
+
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(0.12, now + 0.008);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.09);
+
+  osc.connect(gain).connect(ctx.destination);
+  osc.start(now);
+  osc.stop(now + 0.1);
+}
+
+// Builds (but does not start) the ambient drone graph: left/right detuned
+// oscillators through a gentle lowpass filter, with a slow LFO breathing
+// the master volume up and down so it never feels static or alarm-like.
+function buildAmbientGraph() {
+  const ctx = getAudioContext();
+  const masterGain = ctx.createGain();
+  masterGain.gain.value = 0;
+
+  const filter = ctx.createBiquadFilter();
+  filter.type = "lowpass";
+  filter.frequency.value = 600;
+
+  const panLeft = ctx.createStereoPanner();
+  panLeft.pan.value = -1;
+  const panRight = ctx.createStereoPanner();
+  panRight.pan.value = 1;
+
+  const oscLeft = ctx.createOscillator();
+  oscLeft.type = "sine";
+  oscLeft.frequency.value = 220;
+  const oscRight = ctx.createOscillator();
+  oscRight.type = "sine";
+  oscRight.frequency.value = 230; // 10 Hz difference -> alpha-range binaural beat
+
+  oscLeft.connect(panLeft).connect(filter);
+  oscRight.connect(panRight).connect(filter);
+  filter.connect(masterGain).connect(ctx.destination);
+
+  // Slow "breathing" LFO on the master volume (about one breath every 8s)
+  // so the drone gently swells and fades instead of holding one flat tone.
+  const breathLfo = ctx.createOscillator();
+  breathLfo.type = "sine";
+  breathLfo.frequency.value = 1 / 8;
+  const breathDepth = ctx.createGain();
+  breathDepth.gain.value = 0.025;
+  breathLfo.connect(breathDepth).connect(masterGain.gain);
+
+  const targetVolume = 0.05;
+  masterGain.gain.value = targetVolume;
+
+  oscLeft.start();
+  oscRight.start();
+  breathLfo.start();
+
+  return { masterGain, oscLeft, oscRight, breathLfo, targetVolume };
+}
+
+function startAmbientMusic() {
+  if (ambientNodes) return;
+  const ctx = getAudioContext();
+  ambientNodes = buildAmbientGraph();
+  // Fade in instead of snapping to volume, so starting it isn't jarring.
+  ambientNodes.masterGain.gain.setValueAtTime(0, ctx.currentTime);
+  ambientNodes.masterGain.gain.linearRampToValueAtTime(ambientNodes.targetVolume, ctx.currentTime + 2);
+}
+
+function stopAmbientMusic() {
+  if (!ambientNodes) return;
+  const ctx = getAudioContext();
+  const { masterGain, oscLeft, oscRight, breathLfo } = ambientNodes;
+  masterGain.gain.cancelScheduledValues(ctx.currentTime);
+  masterGain.gain.setValueAtTime(masterGain.gain.value, ctx.currentTime);
+  masterGain.gain.linearRampToValueAtTime(0, ctx.currentTime + 1);
+  setTimeout(() => {
+    oscLeft.stop();
+    oscRight.stop();
+    breathLfo.stop();
+  }, 1100);
+  ambientNodes = null;
+}
+
+function updateSoundToggleButton() {
+  const btn = document.getElementById("sound-toggle");
+  if (!btn) return;
+  const enabled = isClickSoundEnabled();
+  btn.textContent = enabled ? "🔊" : "🔈";
+  btn.classList.toggle("active", enabled);
+  btn.setAttribute("aria-pressed", String(enabled));
+}
+
+function updateMusicToggleButton() {
+  const btn = document.getElementById("music-toggle");
+  if (!btn) return;
+  const enabled = isAmbientMusicEnabled();
+  btn.textContent = enabled ? "🎵" : "🎵";
+  btn.classList.toggle("active", enabled);
+  btn.setAttribute("aria-pressed", String(enabled));
+}
+
+function initAudioControls() {
+  const soundBtn = document.getElementById("sound-toggle");
+  const musicBtn = document.getElementById("music-toggle");
+
+  if (soundBtn) {
+    updateSoundToggleButton();
+    soundBtn.addEventListener("click", () => {
+      const next = !isClickSoundEnabled();
+      setClickSoundEnabled(next);
+      updateSoundToggleButton();
+      if (next) playClickSound();
+    });
   }
 
-  function tone(freq, duration, type = "sine", startGain = 0.18, glideTo = null) {
-    if (muted) return;
-    try {
-      const c = getCtx();
-      const osc = c.createOscillator();
-      const gain = c.createGain();
-      osc.type = type;
-      osc.frequency.setValueAtTime(freq, c.currentTime);
-      if (glideTo !== null) {
-        osc.frequency.exponentialRampToValueAtTime(glideTo, c.currentTime + duration);
-      }
-      gain.gain.setValueAtTime(startGain, c.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + duration);
-      osc.connect(gain);
-      gain.connect(c.destination);
-      osc.start();
-      osc.stop(c.currentTime + duration);
-    } catch (e) { /* audio not available, fail silently */ }
+  if (musicBtn) {
+    updateMusicToggleButton();
+    musicBtn.addEventListener("click", () => {
+      const next = !isAmbientMusicEnabled();
+      setAmbientMusicEnabled(next);
+      updateMusicToggleButton();
+      if (next) startAmbientMusic();
+      else stopAmbientMusic();
+    });
+    if (isAmbientMusicEnabled()) startAmbientMusic();
   }
 
-  return {
-    setMuted(val) { muted = val; },
-    isMuted() { return muted; },
-    jump() { tone(520, 0.12, "square", 0.12, 720); },
-    score() { tone(880, 0.1, "sine", 0.12, 1100); },
-    hit() { tone(140, 0.35, "sawtooth", 0.2, 60); },
-    gameOver() { tone(300, 0.5, "triangle", 0.2, 80); },
-    correct() {
-      tone(660, 0.12, "sine", 0.15, 880);
-      setTimeout(() => tone(990, 0.18, "sine", 0.15, 1200), 120);
-    },
-    wrong() { tone(200, 0.4, "sawtooth", 0.2, 90); },
-    revive() {
-      tone(440, 0.1, "sine", 0.15, 660);
-      setTimeout(() => tone(880, 0.2, "sine", 0.15, 1100), 100);
-    },
-    click() { tone(700, 0.06, "square", 0.08, 700); },
-  };
-})();
-
-// Musik latar prosedural (disintesis, tanpa file audio eksternal) — 3 trek berbeda,
-// dipilih acak setiap kali permainan baru dimulai.
-const MusicFX = (() => {
-  let ctx = null;
-  let muted = false;
-  let masterGain = null;
-  let schedulerId = null;
-  let nextNoteTime = 0;
-  let stepIndex = 0;
-  let trackIndex = 0;
-  const LOOKAHEAD_MS = 30;
-  const SCHEDULE_AHEAD = 0.15;
-
-  const TRACKS = [
-    { // "Aurora" — tenang, melengkung, untuk wallpaper aurora
-      name: "Aurora",
-      tempo: 96,
-      bass: [110, 110, 130.81, 98],
-      lead: [440, 523.25, 587.33, 659.25, 783.99],
-      waveLead: "sine", waveBass: "sine",
-      leadGain: 0.05, bassGain: 0.07,
-    },
-    { // "Grid Pulse" — lebih cepat & tegas, untuk wallpaper grid neon
-      name: "Grid Pulse",
-      tempo: 130,
-      bass: [98, 98, 110, 87.31],
-      lead: [392, 466.16, 523.25, 587.33, 698.46],
-      waveLead: "square", waveBass: "sawtooth",
-      leadGain: 0.032, bassGain: 0.05,
-    },
-    { // "Nebula Drift" — lambat & melayang, untuk wallpaper nebula
-      name: "Nebula Drift",
-      tempo: 82,
-      bass: [82.41, 82.41, 98, 73.42],
-      lead: [329.63, 392, 440, 493.88, 587.33],
-      waveLead: "triangle", waveBass: "sine",
-      leadGain: 0.045, bassGain: 0.065,
-    },
-  ];
-
-  function getCtx() {
-    if (!ctx) {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      ctx = new AudioCtx();
-    }
-    if (ctx.state === "suspended") ctx.resume();
-    return ctx;
-  }
-
-  function scheduleNote(freq, time, dur, type, gainVal) {
-    try {
-      const c = getCtx();
-      const osc = c.createOscillator();
-      const gain = c.createGain();
-      osc.type = type;
-      osc.frequency.value = freq;
-      gain.gain.setValueAtTime(0, time);
-      gain.gain.linearRampToValueAtTime(gainVal, time + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, time + dur);
-      osc.connect(gain);
-      gain.connect(masterGain);
-      osc.start(time);
-      osc.stop(time + dur + 0.05);
-    } catch (e) { /* ignore */ }
-  }
-
-  function tick() {
-    const c = getCtx();
-    const track = TRACKS[trackIndex];
-    const stepDur = 60 / track.tempo / 2; // not-8
-    while (nextNoteTime < c.currentTime + SCHEDULE_AHEAD) {
-      const bassNote = track.bass[stepIndex % track.bass.length];
-      scheduleNote(bassNote, nextNoteTime, stepDur * 1.8, track.waveBass, track.bassGain);
-      if (stepIndex % 2 === 0) {
-        const leadNote = track.lead[Math.floor(Math.random() * track.lead.length)];
-        scheduleNote(leadNote, nextNoteTime, stepDur * 0.9, track.waveLead, track.leadGain);
-      }
-      stepIndex++;
-      nextNoteTime += stepDur;
-    }
-  }
-
-  function start(index) {
-    stop();
-    trackIndex = ((index % TRACKS.length) + TRACKS.length) % TRACKS.length;
-    const c = getCtx();
-    masterGain = c.createGain();
-    masterGain.gain.value = muted ? 0 : 1;
-    masterGain.connect(c.destination);
-    stepIndex = 0;
-    nextNoteTime = c.currentTime + 0.05;
-    schedulerId = setInterval(tick, LOOKAHEAD_MS);
-  }
-
-  function stop() {
-    if (schedulerId) { clearInterval(schedulerId); schedulerId = null; }
-    if (masterGain) {
-      try { masterGain.disconnect(); } catch (e) { /* ignore */ }
-      masterGain = null;
-    }
-  }
-
-  return {
-    start, stop,
-    pickRandomTrack() { return Math.floor(Math.random() * TRACKS.length); },
-    trackCount() { return TRACKS.length; },
-    setMuted(val) {
-      muted = val;
-      if (masterGain) masterGain.gain.value = val ? 0 : 1;
-    },
-    isMuted() { return muted; },
-  };
-})();
+  // Single delegated listener covers every button, nav link, filter chip,
+  // and icon site-wide without touching each feature's own JS file.
+  document.addEventListener("click", (e) => {
+    const interactive = e.target.closest(
+      "button, .nav-link, .filter-chip, .quiz-option, .path-card, .category-icon, .search-result-item, [data-role-toggle], [data-audience]"
+    );
+    if (interactive && interactive.id !== "sound-toggle") playClickSound();
+  });
+}

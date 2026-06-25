@@ -127,6 +127,11 @@ h1, h2, h3, h4, h5, .brand, .section-title, .subsection-title {
   cursor: pointer;
 }
 
+.theme-toggle.active {
+  background: var(--color-teal-bright);
+  border-color: var(--color-teal-bright);
+}
+
 /* ---------- Layout ---------- */
 main {
   max-width: 1100px;

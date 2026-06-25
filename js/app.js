@@ -598,6 +598,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initNavigation();
   initThemeToggle();
   initGlobalSearch();
+  initAudioControls();
 
   renderRoadmap();
   renderModuleCards();

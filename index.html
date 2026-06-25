@@ -1,148 +1,373 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
-<title>Athar's Game</title>
-<link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PetroLearn AI - Personal Petroleum Engineering Learning Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" />
+  <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
 
-<div id="app">
-
-  <!-- ============ GAME CANVAS ============ -->
-  <canvas id="gameCanvas"></canvas>
-
-  <!-- ============ HUD (in-game) ============ -->
-  <div id="hud" class="hidden">
-    <div class="hud-left">
-      <div class="hud-character">▸ <span id="characterVal">Athar</span></div>
-      <div class="hud-score">Score: <span id="scoreVal">0</span></div>
-      <div class="hud-best">Best: <span id="bestVal">0</span></div>
+  <!-- ===================== Top navigation ===================== -->
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand-mark" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4 21V8a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v13" />
+        <path d="M4 11h10" />
+        <path d="M16 8l3-3 2 2-2.5 2.5a1.5 1.5 0 0 0 0 2.1l1 1a1.5 1.5 0 0 1 0 2.1L18 14v4a2 2 0 0 1-4 0" />
+      </svg>
+      PetroLearn AI
     </div>
-    <div class="hud-right">
-      <div class="hud-revives">Revive: <span id="reviveVal">3</span> ❤️</div>
-      <div class="hud-speed">Speed Lv. <span id="speedVal">1</span></div>
+    <nav class="main-nav" aria-label="Primary">
+      <button class="nav-link" data-section="home">Home</button>
+      <button class="nav-link" data-section="roadmap">Roadmap</button>
+      <button class="nav-link" data-section="studypath">Study Path</button>
+      <button class="nav-link" data-section="modules">Modules</button>
+      <button class="nav-link" data-section="hse">HSE</button>
+      <button class="nav-link" data-section="career">Career Prep</button>
+      <button class="nav-link" data-section="interview">Interview Bank</button>
+      <button class="nav-link" data-section="glossary">Glossary</button>
+      <button class="nav-link" data-section="formulas">Formulas</button>
+      <button class="nav-link" data-section="unitconverter">Unit Converter</button>
+      <button class="nav-link" data-section="quiz">Quiz</button>
+      <button class="nav-link" data-section="flashcards">Flashcards</button>
+      <button class="nav-link" data-section="datalab">Data Lab</button>
+      <button class="nav-link" data-section="softwarelab">Software Lab</button>
+      <button class="nav-link" data-section="research">Research</button>
+      <button class="nav-link" data-section="sources">Sources</button>
+      <button class="nav-link" data-section="news">News</button>
+      <button class="nav-link" data-section="jobs">Job Board</button>
+      <button class="nav-link" data-section="progress">Progress</button>
+    </nav>
+    <div class="search-wrap">
+      <input type="text" id="global-search" placeholder="Search everything..." autocomplete="off" />
+      <div id="search-results-dropdown" class="search-results-dropdown"></div>
     </div>
-    <button id="pauseBtn" class="icon-btn" title="Pause (P)">⏸</button>
-    <button id="muteBtn" class="icon-btn" title="Mute/Unmute">🔊</button>
-  </div>
+    <button class="theme-toggle" id="sound-toggle" title="Toggle click sounds" aria-pressed="false">🔈</button>
+    <button class="theme-toggle" id="music-toggle" title="Toggle calming alpha-wave background music" aria-pressed="false">🎵</button>
+    <button class="theme-toggle" id="theme-toggle">Dark mode</button>
+  </header>
 
-  <!-- ============ START SCREEN ============ -->
-  <div id="startScreen" class="screen">
-    <div class="card start-card">
-      <h1 class="title">Athar's Game</h1>
-      <p class="tagline">"Aye dan Hassel, cepet kerjain skripsinya sel, ini bikin game gampang kan saya aja bisa 5 menit pake AI jeh"</p>
+  <main>
 
-      <div class="cameo-row">
-        <div class="cameo" title="Athar - Sang Pejuang Skripsi">
-          <div class="avatar athar-avatar"></div>
-          <span>Athar</span>
+    <!-- ===================== Home ===================== -->
+    <section id="home" class="page-section">
+      <div class="hero bg-grid">
+        <span class="hero-eyebrow">PetroLearn AI</span>
+        <h1>Learn Oil &amp; Gas from First Principles to Field Readiness</h1>
+        <p class="hero-tagline">From rock, to reservoir, to production -- to your first day on site.</p>
+        <p>
+          A personal, offline-friendly learning platform for oil and gas and petroleum engineering -
+          roadmap, modules with analogies and memory tricks, a dedicated HSE module, career preparation,
+          a technical interview bank, glossary, formulas, quizzes, flashcards, a data lab, a software lab,
+          petroleum economics, AI and machine learning, and current industry news links, all in one place,
+          built entirely on free and open-access references.
+        </p>
+        <div class="hero-stats">
+          <div class="hero-stat"><strong id="hero-stat-modules">0</strong><span>Modules</span></div>
+          <div class="hero-stat"><strong id="hero-stat-glossary">0</strong><span>Glossary terms</span></div>
+          <div class="hero-stat"><strong id="hero-stat-quiz">0</strong><span>Quiz questions</span></div>
+          <div class="hero-stat"><strong id="hero-stat-sources">0</strong><span>Free sources</span></div>
+          <div class="hero-stat"><strong id="hero-stat-interview">0</strong><span>Interview questions</span></div>
         </div>
-        <div class="cameo" title="Hassel - Mempertanyakan hidup">
-          <div class="avatar hassel-avatar"></div>
-          <span>Hassel</span>
+      </div>
+
+      <h2 class="subsection-title">Choose Your Path</h2>
+      <p class="section-subtitle">Pick the direction that matches where you want to end up -- you can always explore the rest later.</p>
+      <div id="home-path-row" class="path-row"></div>
+
+      <h2 class="subsection-title">Your Dashboard</h2>
+      <div id="home-dashboard" class="grid"></div>
+
+      <h2 class="subsection-title">Get Started</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Start with the Roadmap</h3>
+          <p>Follow a 12-stage learning path from Oil and Gas 101 to the Data and Software Lab.</p>
+          <button class="btn" data-action="goto" data-target="roadmap">Open Roadmap</button>
         </div>
-        <div class="cameo" title="Aye (Ariel) - Mengawasi dari kejauhan">
-          <div class="avatar aye-avatar"></div>
-          <span>Aye</span>
+        <div class="card">
+          <h3>Follow a Study Path</h3>
+          <p>Pick a beginner, intermediate, or advanced path and work through it step by step.</p>
+          <button class="btn" data-action="goto" data-target="studypath">Open Study Path</button>
+        </div>
+        <div class="card">
+          <h3>Browse Modules</h3>
+          <p>Each module has explanations, key terms, common mistakes, a chart, sources, a quiz, and flashcards.</p>
+          <button class="btn" data-action="goto" data-target="modules">Open Modules</button>
+        </div>
+        <div class="card">
+          <h3>Prepare for the Job</h3>
+          <p>Explore real roles, certifications, and a practice Interview Bank for technical interviews.</p>
+          <button class="btn" data-action="goto" data-target="career">Open Career Prep</button>
         </div>
       </div>
+    </section>
 
-      <div class="highscore-box">🏆 High Score: <span id="startHighScore">0</span></div>
+    <!-- ===================== Learning Roadmap ===================== -->
+    <section id="roadmap" class="page-section">
+      <h1 class="section-title">Learning Roadmap</h1>
+      <p class="section-subtitle">Twelve stages from fundamentals to advanced data and software work.</p>
+      <div id="roadmap-progress-header"></div>
+      <div id="roadmap-list" class="timeline"></div>
+    </section>
 
-      <div class="btn-row">
-        <button id="startBtn" class="btn btn-primary">▶ Start Game</button>
-        <button id="howToPlayBtn" class="btn btn-secondary">❓ How to Play</button>
-        <button id="leaderboardBtn" class="btn btn-ghost">🏅 Leaderboard</button>
+    <!-- ===================== Study Path ===================== -->
+    <section id="studypath" class="page-section">
+      <h1 class="section-title">Study Path</h1>
+      <p class="section-subtitle">Beginner, intermediate, and advanced paths. Click any step to jump straight to it.</p>
+      <div id="study-path-list" class="study-path-columns"></div>
+    </section>
+
+    <!-- ===================== Modules ===================== -->
+    <section id="modules" class="page-section">
+      <h1 class="section-title">Modules</h1>
+      <p class="section-subtitle">Click "View module" for a full breakdown with sources and an Ask AI prompt.</p>
+      <div id="module-filter-bar" class="filter-bar"></div>
+      <div id="modules-grid" class="grid"></div>
+      <div id="module-detail" style="display:none; margin-top:1.5rem;"></div>
+    </section>
+
+    <!-- ===================== HSE ===================== -->
+    <section id="hse" class="page-section">
+      <h1 class="section-title">HSE in Oil and Gas</h1>
+      <p class="section-subtitle">Practical, field-realistic safety knowledge -- the topic most likely to come up in onboarding and interviews.</p>
+      <div id="hse-module-content"></div>
+      <hr class="section-divider" />
+      <div id="hse-case-studies"></div>
+      <hr class="section-divider" />
+      <div id="hse-checklist"></div>
+    </section>
+
+    <!-- ===================== Career Prep ===================== -->
+    <section id="career" class="page-section">
+      <h1 class="section-title">Career Prep / Oil &amp; Gas Career Pathway</h1>
+      <p class="section-subtitle">Real roles, how to read a job posting, certifications that matter, and a roadmap by where you're starting from.</p>
+      <div id="career-roles-grid" class="grid"></div>
+      <hr class="section-divider" />
+      <div id="career-job-posting"></div>
+      <hr class="section-divider" />
+      <div id="career-certifications"></div>
+      <hr class="section-divider" />
+      <h3>Career Roadmap</h3>
+      <div id="career-roadmap-tabs" class="filter-bar"></div>
+      <div id="career-roadmap-body"></div>
+      <hr class="section-divider" />
+      <div id="career-industry-data"></div>
+      <hr class="section-divider" />
+      <div id="career-indonesia-regulation"></div>
+    </section>
+
+    <!-- ===================== Interview Bank ===================== -->
+    <section id="interview" class="page-section">
+      <h1 class="section-title">Interview Bank</h1>
+      <p class="section-subtitle">Real technical-interview-style questions with ideal answers, the thinking process behind them, and common mistakes -- not multiple choice.</p>
+      <div id="interview-mode-toggle" class="filter-bar"></div>
+      <div id="interview-category-filter" class="filter-bar"></div>
+      <div id="interview-difficulty-filter" class="filter-bar"></div>
+      <div id="interview-body"></div>
+    </section>
+
+    <!-- ===================== Glossary ===================== -->
+    <section id="glossary" class="page-section">
+      <h1 class="section-title">Glossary</h1>
+      <p class="section-subtitle">Search petroleum engineering terms by name, category, or definition.</p>
+      <input type="text" id="glossary-search" class="search-bar" placeholder="Search glossary..." />
+      <div id="glossary-list" class="grid"></div>
+    </section>
+
+    <!-- ===================== Formula Sheet ===================== -->
+    <section id="formulas" class="page-section">
+      <h1 class="section-title">Formula Sheet</h1>
+      <p class="section-subtitle">Core formulas grouped by category, with variable explanations and unit notes.</p>
+      <input type="text" id="formula-search" class="search-bar" placeholder="Search formulas..." />
+      <div id="formula-sheet"></div>
+    </section>
+
+    <!-- ===================== Unit Converter ===================== -->
+    <section id="unitconverter" class="page-section">
+      <h1 class="section-title">Unit Converter</h1>
+      <p class="section-subtitle">Convert between field units commonly mixed in petroleum engineering work.</p>
+      <div id="unit-converter"></div>
+    </section>
+
+    <!-- ===================== Quiz Bank ===================== -->
+    <section id="quiz" class="page-section">
+      <h1 class="section-title">Quiz Bank</h1>
+      <p class="section-subtitle">Choose a module and test your understanding.</p>
+      <div class="filter-bar">
+        <button class="quiz-mode-toggle active" data-mode="full">Full Quiz</button>
+        <button class="quiz-mode-toggle" data-mode="checkpoint">Beginner Checkpoint</button>
+        <button class="quiz-mode-toggle" data-mode="exam">Mixed Exam (20 random questions)</button>
       </div>
-      <p class="footer-note">Tekan Space biar Athar tetap produktif.</p>
-    </div>
-  </div>
+      <select id="quiz-module-select" class="search-bar"></select>
+      <div id="quiz-body" class="card"></div>
+    </section>
 
-  <!-- ============ HOW TO PLAY MODAL ============ -->
-  <div id="howToPlayModal" class="modal-overlay hidden">
-    <div class="modal-box card">
-      <h2>Cara Bermain 📖</h2>
-      <ul class="howto-list">
-        <li><b>Space</b> / <b>Klik</b> / <b>Tap</b> — Athar naik (jump)</li>
-        <li><b>P</b> — Pause / Resume</li>
-        <li>Hindari deadline, laptop error, dan tumpukan skripsi.</li>
-        <li>Lewati rintangan untuk menambah skor.</li>
-        <li>Kalau nabrak, kamu nggak langsung mati — jawab dulu kuis revivenya!</li>
-        <li>Jawab benar = lanjut hidup. Jawab salah = wassalam.</li>
-        <li>Maksimal <b>3 revive</b> per permainan. Hemat-hemat ya.</li>
-        <li>Makin jauh main, makin cepat & makin sempit rintangannya (naik tiap 25 skor).</li>
-        <li>Kumpulkan badge dan masuk leaderboard lokal!</li>
-      </ul>
-      <button id="closeHowToPlay" class="btn btn-primary">Oke, Paham!</button>
-    </div>
-  </div>
-
-  <!-- ============ LEADERBOARD MODAL ============ -->
-  <div id="leaderboardModal" class="modal-overlay hidden">
-    <div class="modal-box card">
-      <h2>🏅 Leaderboard Lokal</h2>
-      <p class="footer-note">Top 5 skor terbaik di perangkat ini.</p>
-      <ul id="leaderboardList" class="leaderboard-list"></ul>
-      <button id="closeLeaderboard" class="btn btn-primary">Tutup</button>
-    </div>
-  </div>
-
-  <!-- ============ PAUSE OVERLAY ============ -->
-  <div id="pauseScreen" class="modal-overlay hidden">
-    <div class="modal-box card">
-      <h2>⏸ Pause</h2>
-      <p class="footer-note">Aye mengawasi dari kejauhan...</p>
-      <div class="btn-col">
-        <button id="resumeBtn" class="btn btn-primary">▶ Resume</button>
-        <button id="restartFromPauseBtn" class="btn btn-secondary">🔄 Restart</button>
-        <button id="menuFromPauseBtn" class="btn btn-ghost">🏠 Back to Menu</button>
+    <!-- ===================== Flashcards ===================== -->
+    <section id="flashcards" class="page-section">
+      <h1 class="section-title">Flashcards</h1>
+      <p class="section-subtitle">Generated from glossary terms. Click a card to flip it.</p>
+      <select id="flashcard-category-select" class="search-bar"></select>
+      <div class="flashcard-wrap">
+        <div id="flashcard-display"></div>
+        <div id="flashcard-status" class="flashcard-status"></div>
       </div>
-    </div>
-  </div>
+    </section>
 
-  <!-- ============ REVIVE QUIZ MODAL ============ -->
-  <div id="quizModal" class="modal-overlay hidden">
-    <div class="modal-box card quiz-card">
-      <h2 class="quiz-title">⚠ Belum boleh mati!</h2>
-      <p class="quiz-sub">Jawab dulu soal ini kalau mau lanjut!</p>
-      <div class="quiz-category" id="quizCategory">TIK SMP</div>
-      <p class="quiz-question" id="quizQuestion">Pertanyaan...</p>
-      <div class="quiz-options" id="quizOptions"></div>
-      <div id="quizFeedback" class="quiz-feedback hidden"></div>
-      <button id="quizContinueBtn" class="btn btn-primary hidden">Lanjut</button>
-    </div>
-  </div>
-
-  <!-- ============ GAME OVER SCREEN ============ -->
-  <div id="gameOverScreen" class="modal-overlay hidden">
-    <div class="modal-box card">
-      <h2 class="gameover-title">💀 Game Over</h2>
-      <p id="gameOverMessage" class="footer-note">Yah, skripsinya belum kelar, gamenya juga tamat.</p>
-      <div class="score-summary">
-        <div>Score Akhir: <b id="finalScore">0</b></div>
-        <div>High Score: <b id="finalHighScore">0</b></div>
+    <!-- ===================== Data Lab ===================== -->
+    <section id="datalab" class="page-section">
+      <h1 class="section-title">Data Lab</h1>
+      <p class="section-subtitle">A hands-on workspace for practicing petroleum data analysis with the Volve dataset.</p>
+      <div class="card">
+        <h3>Equinor Volve Field Dataset</h3>
+        <p>
+          The Volve dataset is a real, openly shared oilfield dataset released by Equinor, including
+          production data, well data, and supporting documentation. It is a practical way to learn
+          production data analysis and well log analysis with real-world data.
+        </p>
+        <p>
+          <a href="https://www.equinor.com/energy/volve-data-sharing" target="_blank" rel="noopener">Equinor Volve Data Sharing</a>
+          &middot;
+          <a href="https://www.kaggle.com/code/imranulhaquenoor/volve-field-production-data-analysis-eda" target="_blank" rel="noopener">Example Kaggle analysis</a>
+          &middot;
+          <a href="https://www.norskpetroleum.no/en/facts/field/volve/" target="_blank" rel="noopener">Field background</a>
+        </p>
       </div>
-      <div id="newHighScoreBadge" class="new-highscore hidden">✨ New High Score! ✨</div>
-      <div id="badgeUnlocked" class="badge-unlocked hidden"></div>
-      <div class="btn-row">
-        <button id="playAgainBtn" class="btn btn-primary">🔁 Play Again</button>
-        <button id="menuFromGameOverBtn" class="btn btn-ghost">🏠 Menu</button>
+      <div id="datalab-decline-chart"></div>
+      <div id="datalab-watercut-chart"></div>
+      <h3>Planned capability</h3>
+      <p>A future version of this page will let you upload a CSV file and plot production trends directly in the browser.</p>
+      <h3>Sample project ideas</h3>
+      <div class="grid">
+        <div class="card">Plot oil rate versus time</div>
+        <div class="card">Plot water cut versus time</div>
+        <div class="card">Calculate cumulative production</div>
+        <div class="card">Simple decline curve fitting</div>
+        <div class="card">Compare producer wells</div>
+        <div class="card">Basic well log visualization</div>
       </div>
-      <p class="footer-note hassel-nudge">"Hassel, cepet selesain skripsinya, ini saya aja udah bikin game 5 menit jeh"</p>
-      <p class="footer-note copyright-note">© Game ini buatan Athar. Dibikin pakai Agen Claude AI dan Codex di VS Code.</p>
-    </div>
-  </div>
+      <h3>Python for petroleum data</h3>
+      <p>Libraries such as <span class="term" title="A Python library for tabular data analysis.">pandas</span>, matplotlib, and lasio are commonly used for production and well log data analysis in Python. See the Software Lab page for more.</p>
+    </section>
 
-  <!-- ============ CONFETTI CANVAS ============ -->
-  <canvas id="confettiCanvas"></canvas>
+    <!-- ===================== Software Lab ===================== -->
+    <section id="softwarelab" class="page-section">
+      <h1 class="section-title">Software Lab</h1>
+      <p class="section-subtitle">Open-source tools for petroleum data analysis and reservoir simulation.</p>
+      <div id="softwarelab-content"></div>
+    </section>
 
-</div>
+    <!-- ===================== Research Library ===================== -->
+    <section id="research" class="page-section">
+      <h1 class="section-title">Research Library</h1>
+      <p class="section-subtitle">Curated free and open-access references grouped by type. Titles, links, and short notes only.</p>
+      <div id="research-library-list"></div>
+    </section>
 
-<script src="js/quizData.js?v=2"></script>
-<script src="js/audio.js?v=2"></script>
-<script src="js/game.js?v=2"></script>
-<script src="js/main.js?v=2"></script>
+    <!-- ===================== Sources and References ===================== -->
+    <section id="sources" class="page-section">
+      <h1 class="section-title">Sources and References</h1>
+      <p class="section-subtitle">All free and open-access sources used to build this learning roadmap, filterable by topic and level.</p>
+      <div class="filter-bar">
+        <select id="source-topic-filter" class="search-bar" style="margin-bottom:0;"></select>
+        <select id="source-level-filter" class="search-bar" style="margin-bottom:0;"></select>
+      </div>
+      <div id="sources-list"></div>
+    </section>
+
+    <!-- ===================== Oil and Gas News Links ===================== -->
+    <section id="news" class="page-section">
+      <h1 class="section-title">Oil and Gas News Links</h1>
+      <p class="section-subtitle">
+        Link cards only -- no scraped articles. News links are external and should be checked
+        directly for the latest updates.
+      </p>
+      <div id="news-filter-bar" class="filter-bar"></div>
+      <div id="news-list"></div>
+    </section>
+
+    <!-- ===================== Job Board ===================== -->
+    <section id="jobs" class="page-section">
+      <h1 class="section-title">Job Board</h1>
+      <p class="section-subtitle">
+        Live links to recruitment portals, job search engines, and company career pages -- not stored
+        postings, so listings stay current automatically. Indonesia-focused and global/international
+        sources, plus industry-specific boards and direct company career pages.
+      </p>
+      <div id="jobs-filter-bar" class="filter-bar"></div>
+      <div id="jobs-list"></div>
+    </section>
+
+    <!-- ===================== Progress Tracker ===================== -->
+    <section id="progress" class="page-section">
+      <h1 class="section-title">Progress Tracker</h1>
+      <p class="section-subtitle">Saved locally in this browser via localStorage. Nothing is sent anywhere.</p>
+      <div id="progress-summary"></div>
+    </section>
+
+  </main>
+
+  <footer>
+    PetroLearn AI &middot; Personal study project &middot; Built with HTML, CSS, and JavaScript only.
+  </footer>
+
+  <!-- ===================== Data layer ===================== -->
+  <script src="data/modules.js"></script>
+  <script src="data/roadmap.js"></script>
+  <script src="data/glossary.js"></script>
+  <script src="data/formulas.js"></script>
+  <script src="data/unitconverter.js"></script>
+  <script src="data/quizzes.js"></script>
+  <script src="data/flashcards.js"></script>
+  <script src="data/sources.js"></script>
+  <script src="data/studypath.js"></script>
+  <script src="data/news.js"></script>
+  <script src="data/jobs.js"></script>
+  <script src="data/career.js"></script>
+  <script src="data/interview.js"></script>
+  <script src="data/hse.js"></script>
+
+  <!-- ===================== App logic ===================== -->
+  <script src="js/progress.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/terms.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/modules.js"></script>
+  <script src="js/unitconverter.js"></script>
+  <script src="js/glossary.js"></script>
+  <script src="js/quiz.js"></script>
+  <script src="js/flashcards.js"></script>
+  <script src="js/career.js"></script>
+  <script src="js/interview.js"></script>
+  <script src="js/hse.js"></script>
+  <script src="js/jobs.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    // Home page "Open X" buttons just reuse the nav's showSection logic.
+    document.querySelectorAll('[data-action="goto"]').forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const target = btn.dataset.target;
+        showSection(target);
+        const refresh = SECTION_REFRESH[target];
+        if (refresh) refresh();
+      });
+    });
+
+    // Fill in the hero stat numbers once the data files have loaded.
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("hero-stat-modules").textContent = MODULES_DATA.length;
+      document.getElementById("hero-stat-glossary").textContent = GLOSSARY_DATA.length;
+      document.getElementById("hero-stat-quiz").textContent = QUIZZES_DATA.length;
+      document.getElementById("hero-stat-sources").textContent = SOURCES_DATA.length;
+      document.getElementById("hero-stat-interview").textContent = INTERVIEW_QUESTIONS_DATA.length;
+
+      renderModuleChart("data-lab-volve", "datalab-decline-chart");
+      CHART_RENDERERS.waterCutChart("datalab-watercut-chart");
+    });
+  </script>
 </body>
 </html>
