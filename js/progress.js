@@ -29,6 +29,7 @@ function defaultProgress() {
     careerRolesViewed: [], // role ids from CAREER_ROLES_DATA
     clickSoundEnabled: false,
     ambientMusicEnabled: false,
+    navHidden: false,
   };
 }
 
@@ -137,5 +138,11 @@ function setClickSoundEnabled(enabled) {
 function setAmbientMusicEnabled(enabled) {
   const progress = loadProgress();
   progress.ambientMusicEnabled = enabled;
+  saveProgress(progress);
+}
+
+function setNavHidden(hidden) {
+  const progress = loadProgress();
+  progress.navHidden = hidden;
   saveProgress(progress);
 }

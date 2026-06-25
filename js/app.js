@@ -30,6 +30,85 @@ const SECTION_REFRESH = {
   jobs: renderJobLinks,
 };
 
+function applyNavHiddenState(hidden) {
+  const nav = document.getElementById("main-nav");
+  const hideBtn = document.getElementById("nav-hide-toggle");
+  const showBtn = document.getElementById("nav-show-toggle");
+  if (!nav || !hideBtn || !showBtn) return;
+
+  // Hiding the nav also hides the rest of the header controls (search,
+  // sound, music, theme) -- only the brand and the floating "show" button
+  // stay visible, so the whole top bar gets out of the way at once.
+  const otherControls = [
+    document.querySelector(".search-wrap"),
+    document.getElementById("sound-toggle"),
+    document.getElementById("music-toggle"),
+    document.getElementById("theme-toggle"),
+  ];
+
+  nav.classList.toggle("nav-hidden", hidden);
+  hideBtn.style.display = hidden ? "none" : "";
+  showBtn.style.display = hidden ? "" : "none";
+  hideBtn.setAttribute("aria-pressed", String(hidden));
+  otherControls.forEach((el) => {
+    if (el) el.style.display = hidden ? "none" : "";
+  });
+}
+
+function initNavCollapse() {
+  const hideBtn = document.getElementById("nav-hide-toggle");
+  const showBtn = document.getElementById("nav-show-toggle");
+  if (!hideBtn || !showBtn) return;
+
+  applyNavHiddenState(Boolean(loadProgress().navHidden));
+
+  hideBtn.addEventListener("click", () => {
+    setNavHidden(true);
+    applyNavHiddenState(true);
+  });
+  showBtn.addEventListener("click", () => {
+    setNavHidden(false);
+    applyNavHiddenState(false);
+  });
+}
+
+// Auto-hides the whole top bar when scrolling down (more reading room),
+// and brings it back when scrolling up or near the top of the page --
+// independent of the manual "Sembunyikan Menu" toggle above.
+function initAutoHideHeaderOnScroll() {
+  const header = document.querySelector(".topbar");
+  if (!header) return;
+
+  const REVEAL_THRESHOLD = 80; // always show header above this scroll position
+  const MOVE_THRESHOLD = 10; // ignore tiny scroll jitters
+  let lastScrollY = window.scrollY;
+  let ticking = false;
+
+  function onScroll() {
+    const currentScrollY = window.scrollY;
+
+    if (currentScrollY <= REVEAL_THRESHOLD) {
+      header.classList.remove("topbar-auto-hidden");
+    } else if (Math.abs(currentScrollY - lastScrollY) >= MOVE_THRESHOLD) {
+      header.classList.toggle("topbar-auto-hidden", currentScrollY > lastScrollY);
+    }
+
+    lastScrollY = currentScrollY;
+    ticking = false;
+  }
+
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(onScroll);
+      }
+    },
+    { passive: true }
+  );
+}
+
 function initNavigation() {
   document.querySelectorAll(".nav-link").forEach((link) => {
     link.addEventListener("click", () => {
@@ -596,6 +675,8 @@ function renderProgressTracker() {
 
 document.addEventListener("DOMContentLoaded", () => {
   initNavigation();
+  initNavCollapse();
+  initAutoHideHeaderOnScroll();
   initThemeToggle();
   initGlobalSearch();
   initAudioControls();
